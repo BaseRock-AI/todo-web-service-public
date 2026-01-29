@@ -1,6 +1,7 @@
 package com.bmuschko.todo.webservice;
 
 import com.bmuschko.todo.webservice.model.ToDoItem;
+import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -65,9 +66,12 @@ public class ToDoWebServiceFunctionalTest {
         assertEquals("[{\"id\":1,\"name\":\"Buy milk\",\"completed\":false}]", allItems);
     }
 
+    private static final String AUTH_HEADER = Credentials.basic("admin", "password123");
+
     private String getAllItems() {
         Request request = new Request.Builder()
                 .url(buildEndpointUrl(CONTEXT))
+                .header("Authorization", AUTH_HEADER)
                 .build();
         Response response = callEndpoint(request);
         try {
@@ -81,6 +85,7 @@ public class ToDoWebServiceFunctionalTest {
         RequestBody requestBody = RequestBody.create(JSON_MEDIA_TYPE, buildToDoItemJson(toDoItem));
         Request request = new Request.Builder()
                 .url(buildEndpointUrl(CONTEXT))
+                .header("Authorization", AUTH_HEADER)
                 .post(requestBody)
                 .build();
         callEndpoint(request);

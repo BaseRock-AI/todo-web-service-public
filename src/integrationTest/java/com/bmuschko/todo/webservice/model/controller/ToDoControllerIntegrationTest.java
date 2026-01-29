@@ -19,6 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -45,7 +46,7 @@ public class ToDoControllerIntegrationTest {
         items.add(toDoItem3);
         given(toDoRepository.findAll()).willReturn(items);
         verifyNoMoreInteractions(toDoRepository);
-        mvc.perform(get("/todos"))
+        mvc.perform(get("/todos").with(httpBasic("admin", "password123")))
                 .andExpect(content().json("[{\"id\":123,\"name\":\"Buy milk\",\"completed\":true},{\"id\":456,\"name\":\"Wash dishes\",\"completed\":false},{\"id\":789,\"name\":\"Go shopping\",\"completed\":true}]"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
@@ -57,7 +58,7 @@ public class ToDoControllerIntegrationTest {
         Optional<ToDoItem> toDoItem = Optional.of(createToDoItem(123L, "Buy milk", true));
         given(toDoRepository.findById(123L)).willReturn(toDoItem);
         verifyNoMoreInteractions(toDoRepository);
-        mvc.perform(get("/todos/123"))
+        mvc.perform(get("/todos/123").with(httpBasic("admin", "password123")))
                 .andExpect(content().json("{\"id\":123,\"name\":\"Buy milk\",\"completed\":true}"))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
@@ -66,7 +67,7 @@ public class ToDoControllerIntegrationTest {
     @Test
     @DisplayName("can delete existing item")
     void deleteItem() throws Exception {
-        mvc.perform(delete("/todos/123"))
+        mvc.perform(delete("/todos/123").with(httpBasic("admin", "password123")))
                 .andExpect(status().isOk());
         verify(toDoRepository, times(1)).deleteById(123L);
     }
@@ -78,7 +79,7 @@ public class ToDoControllerIntegrationTest {
         ToDoItem toDoItemAfterSave = createToDoItem(1L, "Buy milk", true);
         given(toDoRepository.save(toDoItemBeforeSave)).willReturn(toDoItemAfterSave);
         verifyNoMoreInteractions(toDoRepository);
-        mvc.perform(post("/todos").content("{\"name\":\"Buy milk\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(post("/todos").content("{\"name\":\"Buy milk\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8).with(httpBasic("admin", "password123")))
                 .andExpect(status().isCreated());
     }
 
@@ -89,7 +90,7 @@ public class ToDoControllerIntegrationTest {
         given(toDoRepository.findById(123L)).willReturn(toDoItem);
         given(toDoRepository.save(toDoItem.get())).willReturn(toDoItem.get());
         verifyNoMoreInteractions(toDoRepository);
-        mvc.perform(put("/todos/123").content("{\"name\":\"Read book\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(put("/todos/123").content("{\"name\":\"Read book\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8).with(httpBasic("admin", "password123")))
                 .andExpect(status().isNoContent());
     }
 
@@ -98,7 +99,7 @@ public class ToDoControllerIntegrationTest {
     void updateNonExistingItem() throws Exception {
         given(toDoRepository.findById(123L)).willReturn(Optional.empty());
         verifyNoMoreInteractions(toDoRepository);
-        mvc.perform(put("/todos/123").content("{\"name\":\"Read book\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8))
+        mvc.perform(put("/todos/123").content("{\"name\":\"Read book\",\"completed\":true}").contentType(MediaType.APPLICATION_JSON_UTF8).with(httpBasic("admin", "password123")))
                 .andExpect(status().isNotFound());
     }
 
