@@ -1,28 +1,39 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.1.2.RELEASE'
-    id 'io.spring.dependency-management' version '1.0.6.RELEASE'
-    id 'com.google.cloud.tools.jib' version '1.6.0'
+    id 'org.springframework.boot' version '3.0.1'
+    id 'io.spring.dependency-management' version '1.1.1'
+    id 'com.google.cloud.tools.jib' version '3.3.2'
 }
 
-sourceCompatibility = JavaVersion.VERSION_1_8
-targetCompatibility = JavaVersion.VERSION_1_8
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 version = '1.0.0'
 
 apply from: 'gradle/test-setup.gradle'
 apply from: 'gradle/integration-test.gradle'
-apply from: 'gradle/functional-test.gradle'
 
 repositories {
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    runtime 'com.h2database:h2'
-    runtime 'org.postgresql:postgresql:42.2.5'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql:42.7.4'
+    testImplementation 'com.rabbitmq:amqp-client:5.16.0'
+    testImplementation("org.hamcrest:hamcrest:3.0")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:3.0.1")
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.9.2'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.9.2'
 }
 
 jib {
